@@ -5,25 +5,30 @@ let upgradePurchased = false;
 const scoreElement = document.getElementById("score");
 const levelElement = document.getElementById("level");
 const plantBtn = document.getElementById("plantBtn");
+const plantImg = document.getElementById("plant");
+const clickSound = document.getElementById("clickSound");
 
-// زراعة بذرة
+// تشغيل صوت عند النقر
 plantBtn.addEventListener("click", () => {
+  clickSound.currentTime = 0; // إعادة الصوت من البداية
+  clickSound.play();
+
   score += 1;
-  if (upgradePurchased) score += 1; // ترقية تضاعف النقاط
+  if (upgradePurchased) score += 1;
   scoreElement.textContent = score;
 
-  // ترقية تلقائية للمستوى
-  if (score >= level * 10 && level < 5) {
+  // تأثير نمو النبات
+  plantImg.classList.add("grow");
+  setTimeout(() => {
+    plantImg.classList.remove("grow");
+  }, 200);
+
+  // ترقية المستوى
+  if (score >= level * 10 && level < 10) {
     level++;
     levelElement.textContent = level;
     alert(`🎉 تهانًا! ارتقيت إلى المستوى ${level}`);
   }
-
-  // تأثير النقر
-  plantBtn.textContent = "زرعت! 🌱";
-  setTimeout(() => {
-    plantBtn.textContent = "زرع بذرة 🌱";
-  }, 300);
 });
 
 // شراء ترقية
