@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>نظام توليد الحسابات البنكية - ديناميكي</title>
-  <!-- مكتبات للتصدير -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <title>نظام توليد الحسابات البنكية</title>
+  <!-- تحميل المكتبات من CDN مع التأكد من الترتيب الصحيح -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -57,7 +57,7 @@
       margin: 8px 0 4px;
       color: #333;
     }
-    input, select, button, .btn {
+    input, button {
       padding: 11px;
       width: 100%;
       margin-bottom: 12px;
@@ -73,7 +73,7 @@
       font-weight: bold;
       transition: background 0.3s;
     }
-    button:hover, .btn:hover {
+    button:hover {
       background-color: #2980b9;
     }
     .grid {
@@ -124,7 +124,7 @@
     }
     .client-item {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
       gap: 8px;
       margin-bottom: 8px;
       padding: 10px;
@@ -157,21 +157,15 @@
       .btn-group {
         flex-direction: column;
       }
-      .container {
-        padding: 15px;
-      }
-      h1 {
-        font-size: 1.3em;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>نظام توليد الحسابات البنكية</h1>
-    <p>توليد حسابات فرعية ديناميكية + ربط العملاء + تصدير إلى Excel / PDF</p>
+    <p>توليد أولية + إضافة ديناميكية + مبلغ العقار + تصدير إلى Excel / PDF</p>
 
-    <!-- الخطوة 1: إعدادات أولية -->
+    <!-- الخطوة 1: الإعدادات -->
     <div id="step1" class="step">
       <h2>الخطوة 1: إعدادات التوليد</h2>
       <label for="baseIban">رقم IBAN الأساسي</label>
@@ -188,18 +182,21 @@
         </div>
       </div>
 
+      <label for="initialCount">عدد الحسابات الأولية</label>
+      <input type="number" id="initialCount" min="1" max="100" value="3" />
+
       <label for="idPattern">نمط معرف العميل (مثل: CUST-{000})</label>
       <input type="text" id="idPattern" placeholder="CUST-{000}" value="CUST-{000}" />
 
-      <button onclick="startClientEntry()">ابدأ بإضافة العملاء</button>
+      <button onclick="startGeneration()">توليد الحسابات الأولية</button>
     </div>
 
-    <!-- الخطوة 2: إدخال العملاء (ديناميكي) -->
+    <!-- الخطوة 2: إدارة العملاء -->
     <div id="step2" class="step hidden">
-      <h2>الخطوة 2: أضف العملاء (كل عميل يحصل على حساب جديد)</h2>
-      <p>اضغط على "إضافة عميل" لتوليد حساب جديد وربطه بالعميل.</p>
+      <h2>الخطوة 2: إدارة العملاء</h2>
+      <p>أدخل بيانات العملاء، ويمكنك إضافة حسابات جديدة بالنقر على الزر أدناه.</p>
       <div id="clientsContainer"></div>
-      <div class="add-more" onclick="addNewClient()">+ إضافة عميل جديد (مع توليد حساب)</div>
+      <div class="add-more" onclick="addNewClient()">+ إضافة عميل جديد (مع توليد حساب جديد)</div>
       <button onclick="finalizeClients()">إكمال وعرض النتائج</button>
       <button class="btn-back" onclick="goToStep1()">العودة</button>
     </div>
@@ -218,19 +215,18 @@
   </div>
 
   <script>
-    // المتغيرات العامة
+    // المتغيرات
     let baseIbanClean = "";
-    let startPos = 0;
-    let endPos = 0;
-    let prefix = "";
-    let suffix = "";
+    let startPos = 0, endPos = 0;
+    let prefix = "", suffix = "";
     let editableLength = 0;
-    let nextValue = 0; // القيمة التالية للتعديل
+    let nextValue = 0;
     let clientIdPattern = "CUST-{000}";
-    let clientAccounts = []; // تخزين الحسابات مع العملاء
+    let clientAccounts = [];
 
-    function startClientEntry() {
+    function startGeneration() {
       const baseIban = document.getElementById("baseIban").value.trim().replace(/\s+/g, "");
+      const initialCount = parseInt(document.getElementById("initialCount").value);
       startPos = parseInt(document.getElementById("startPos").value) - 1;
       endPos = parseInt(document.getElementById("endPos").value);
       clientIdPattern = document.getElementById("idPattern").value.trim() || "CUST-{000}";
@@ -243,24 +239,27 @@
         alert("نطاق الخانات غير صحيح.");
         return;
       }
+      if (isNaN(initialCount) || initialCount < 1) {
+        alert("الرجاء إدخال عدد صحيح أكبر من 0");
+        return;
+      }
 
       baseIbanClean = baseIban;
       const nationalPart = baseIban.substring(2);
       prefix = nationalPart.substring(0, startPos);
       suffix = nationalPart.substring(endPos);
       editableLength = endPos - startPos;
-
-      // بدء التسلسل من 0
       nextValue = 0;
-
-      // تفريغ قائمة العملاء
       clientAccounts = [];
+
       document.getElementById("clientsContainer").innerHTML = "";
       document.getElementById("step1").classList.add("hidden");
       document.getElementById("step2").classList.remove("hidden");
 
-      // إضافة أول عميل تلقائيًا
-      addNewClient();
+      // توليد الحسابات الأولية
+      for (let i = 0; i < initialCount; i++) {
+        addNewClient();
+      }
     }
 
     function generateNextIban() {
@@ -301,41 +300,38 @@
 
       const item = document.createElement("div");
       item.className = "client-item";
-      item.dataset.index = index;
       item.innerHTML = `
-        <div>
-          <small>الحساب: ${account.iban}</small>
-        </div>
+        <div><small>الحساب: ${account.iban}</small></div>
         <input type="text" class="client-name" placeholder="اسم العميل" />
         <input type="text" class="client-id" value="${autoId}" />
+        <input type="number" class="property-amount" placeholder="مبلغ العقار" step="0.01" />
       `;
       container.appendChild(item);
 
-      // حفظ الحساب
       clientAccounts.push({
         iban: account.iban,
         national: account.national,
         name: "",
-        id: autoId
+        id: autoId,
+        amount: ""
       });
     }
 
     function finalizeClients() {
-      // تحديث البيانات من الحقول
       const items = document.querySelectorAll(".client-item");
       items.forEach((item, i) => {
         const name = item.querySelector(".client-name").value.trim() || "(بدون اسم)";
         const id = item.querySelector(".client-id").value.trim();
+        const amount = item.querySelector(".property-amount").value.trim() || "0.00";
         clientAccounts[i].name = name;
         clientAccounts[i].id = id;
+        clientAccounts[i].amount = parseFloat(amount).toFixed(2);
       });
 
-      // إعداد عرض النتائج
-      let output = "الحساب\t\t\t\t\tالاسم\t\t\t\tالمعرف\t\tالحساب الوطني\n";
-      output += "─".repeat(130) + "\n";
-
+      let output = "الحساب\t\t\t\t\tالاسم\t\t\t\tالمعرف\t\tمبلغ العقار\tالحساب الوطني\n";
+      output += "─".repeat(150) + "\n";
       clientAccounts.forEach(acc => {
-        output += `${acc.iban}\t${acc.name.padEnd(20)}\t${acc.id.padEnd(15)}\t${acc.national}\n`;
+        output += `${acc.iban}\t${acc.name.padEnd(20)}\t${acc.id.padEnd(15)}\t${acc.amount.padStart(12)}\t${acc.national}\n`;
       });
 
       window.exportData = clientAccounts;
@@ -356,6 +352,7 @@
         "رقم الحساب": r.iban,
         "اسم العميل": r.name,
         "المعرف": r.id,
+        "مبلغ العقار": r.amount,
         "الحساب الوطني": r.national
       })));
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -367,16 +364,32 @@
       URL.revokeObjectURL(url);
     }
 
-    function exportToPDF() {
+    async function exportToPDF() {
+      // التأكد من تحميل jsPDF
+      if (typeof window.jspdf === 'undefined') {
+        alert("جاري تحميل المكتبات... يرجى المحاولة مرة أخرى بعد قليل.");
+        return;
+      }
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
+
       doc.setFontSize(12);
       doc.text("بيانات الحسابات البنكية", 14, 15);
+
+      const bodyData = window.exportData.map(r => [
+        r.iban,
+        r.name,
+        r.id,
+        r.amount,
+        r.national
+      ]);
+
       doc.autoTable({
-        head: [['رقم الحساب', 'اسم العميل', 'المعرف', 'الحساب الوطني']],
-        body: window.exportData.map(r => [r.iban, r.name, r.id, r.national]),
+        head: [['رقم الحساب', 'اسم العميل', 'المعرف', 'مبلغ العقار', 'الحساب الوطني']],
+        body: bodyData,
         startY: 20
       });
+
       doc.save(`حسابات_العملاء_${Date.now()}.pdf`);
     }
 
