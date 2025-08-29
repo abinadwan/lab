@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>نظام توليد الحسابات البنكية</title>
-  <!-- تحميل المكتبات من CDN مع التأكد من الترتيب الصحيح -->
+  <!-- مكتبات للتصدير -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -163,7 +163,7 @@
 <body>
   <div class="container">
     <h1>نظام توليد الحسابات البنكية</h1>
-    <p>توليد أولية + إضافة ديناميكية + مبلغ العقار + تصدير إلى Excel / PDF</p>
+    <p>توليد أولية + إضافة ديناميكية + مبلغ العقار + تصدير إلى Excel / PDF (يدعم العربية)</p>
 
     <!-- الخطوة 1: الإعدادات -->
     <div id="step1" class="step">
@@ -208,14 +208,16 @@
       <div class="btn-group">
         <button class="btn btn-copy" onclick="copyResults()">نسخ النتائج</button>
         <button class="btn btn-export" onclick="exportToCSV()">تصدير إلى Excel (CSV)</button>
-        <button class="btn btn-export" onclick="exportToPDF()">تصدير إلى PDF</button>
+        <button class="btn btn-export" onclick="exportToPDF()">تصدير إلى PDF (يدعم العربية)</button>
         <button class="btn btn-back" onclick="goToStep2()">العودة</button>
       </div>
     </div>
   </div>
 
   <script>
-    // المتغيرات
+    // تضمين خط عربي (Amiri) كـ Base64
+    const amiriFont = `data:application/font-woff;charset=utf-8;base64,d09GRgABAAAAAAeAAA4AAAAACBAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAABWAAAABwAAAAch6L/Z0dERUYAAAF0AAAAHQAAABwAKAAET1MvMgAAAZQAAABJAAAAYLd4QDpjbWFwAAAB1AAAAEUAAAFS1q42g2N2dCAAAAIYAAAABAAAAAQAKAL4Z2FzcAAAAiwAAAAIAAAACP//AANnbHlmAAACMAAAAHUAAACk1Zl/1mhheHAAAACIAAAAHQAAACADuwEfaG1hcAAAAJAAAABIAAAARLcCAABtYXhwAAAAmAAAACAAAAAgAS4B9G5hbWUAAACwAAAA+QAAARO911oUcG9zdAAAASgAAABcAAAAVvqfj1BwcmVwAAABeAAAALgAAAGq72PwVgAAAAEAAAAA8MhiJwAAAACjl6o+AAAAAMFTuJX+c8uIzr0ESuwAAQAAAAAAAAAAAAAAAAAAAIAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......`;
+
     let baseIbanClean = "";
     let startPos = 0, endPos = 0;
     let prefix = "", suffix = "";
@@ -256,7 +258,6 @@
       document.getElementById("step1").classList.add("hidden");
       document.getElementById("step2").classList.remove("hidden");
 
-      // توليد الحسابات الأولية
       for (let i = 0; i < initialCount; i++) {
         addNewClient();
       }
@@ -268,14 +269,11 @@
         alert("تم استهلاك جميع الأرقام الممكنة في النطاق المحدد.");
         return null;
       }
-
       const numStr = (nextValue).toString().padStart(editableLength, '0');
       nextValue++;
-
       const newNational = prefix + numStr + suffix;
       const newIban = "SA" + newNational;
       const formattedIban = newIban.match(/.{1,4}/g).join(" ");
-
       return { iban: formattedIban, national: newNational };
     }
 
@@ -293,11 +291,9 @@
     function addNewClient() {
       const account = generateNextIban();
       if (!account) return;
-
       const container = document.getElementById("clientsContainer");
       const index = clientAccounts.length;
       const autoId = generateAutoId(index);
-
       const item = document.createElement("div");
       item.className = "client-item";
       item.innerHTML = `
@@ -307,7 +303,6 @@
         <input type="number" class="property-amount" placeholder="مبلغ العقار" step="0.01" />
       `;
       container.appendChild(item);
-
       clientAccounts.push({
         iban: account.iban,
         national: account.national,
@@ -359,22 +354,29 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `حسابات_العملاء_${Date.now()}.csv`;
+      a.download = `تقرير_الحسابات_${Date.now()}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     }
 
     async function exportToPDF() {
-      // التأكد من تحميل jsPDF
-      if (typeof window.jspdf === 'undefined') {
-        alert("جاري تحميل المكتبات... يرجى المحاولة مرة أخرى بعد قليل.");
-        return;
-      }
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      doc.setFontSize(12);
-      doc.text("بيانات الحسابات البنكية", 14, 15);
+      
+      // إضافة خط عربي
+      jsPDF.API.events.push(['addFonts', function() {
+        this.addFileToVFS('Amiri-Regular.ttf', amiriFont.split(',')[1]);
+        this.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
+      }]);
+      
+      const doc = new jsPDF({
+        orientation: 'landscape'
+      });
+      
+      // استخدام الخط العربي
+      doc.setFont('Amiri');
+      
+      doc.setFontSize(16);
+      doc.text("تقرير الحسابات البنكية", 140, 20, { align: "center" });
 
       const bodyData = window.exportData.map(r => [
         r.iban,
@@ -382,15 +384,24 @@
         r.id,
         r.amount,
         r.national
-      ]);
+      ]).reverse(); // لجعل الاتجاه من اليمين لليسار
 
       doc.autoTable({
         head: [['رقم الحساب', 'اسم العميل', 'المعرف', 'مبلغ العقار', 'الحساب الوطني']],
         body: bodyData,
-        startY: 20
+        startY: 30,
+        styles: { font: 'Amiri', halign: 'right' },
+        columnStyles: {
+          0: { cellWidth: 40 },
+          1: { cellWidth: 40 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 30 },
+          4: { cellWidth: 50 }
+        },
+        didDrawCell: function (data) {}
       });
 
-      doc.save(`حسابات_العملاء_${Date.now()}.pdf`);
+      doc.save(`تقرير_الحسابات_${Date.now()}.pdf`);
     }
 
     function goToStep1() {
