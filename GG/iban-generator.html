@@ -3,161 +3,391 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>توليد حسابات بنكية فرعية</title>
+  <title>نظام توليد الحسابات البنكية - ديناميكي</title>
+  <!-- مكتبات للتصدير -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      padding: 20px;
-      text-align: right;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      padding: 15px;
+      margin: 0;
+      color: #333;
+      line-height: 1.6;
     }
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
       background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     h1 {
       color: #2c3e50;
+      text-align: center;
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+    p {
+      text-align: center;
+      color: #666;
+      font-size: 0.95em;
+    }
+    .step {
+      margin-bottom: 25px;
+      padding: 18px;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      background: #fafbfd;
+    }
+    .step h2 {
+      margin-top: 0;
+      color: #2980b9;
+      font-size: 1.2em;
     }
     label {
       font-weight: bold;
       display: block;
-      margin: 10px 0 5px;
+      margin: 8px 0 4px;
+      color: #333;
     }
-    input, button {
-      padding: 10px;
+    input, select, button, .btn {
+      padding: 11px;
       width: 100%;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 6px;
       font-size: 16px;
     }
-    button {
+    button, .btn {
       background-color: #3498db;
       color: white;
+      border: none;
       cursor: pointer;
       font-weight: bold;
+      transition: background 0.3s;
     }
-    button:hover {
+    button:hover, .btn:hover {
       background-color: #2980b9;
     }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .hidden {
+      display: none;
+    }
     #results {
-      margin-top: 20px;
-      border: 1px solid #ddd;
+      width: 100%;
+      background: #f0f4f8;
+      border: 1px solid #d0d7e2;
+      border-radius: 6px;
       padding: 15px;
-      border-radius: 5px;
-      background: #f9f9f9;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
       max-height: 400px;
       overflow-y: auto;
-      white-space: pre-wrap;
+      direction: ltr;
+      text-align: left;
+      line-height: 1.8;
     }
-    .copy-btn {
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .btn-copy {
       background-color: #27ae60;
-      padding: 8px;
-      font-size: 14px;
     }
-    .copy-btn:hover {
+    .btn-copy:hover {
       background-color: #219955;
     }
-    .export-btn {
+    .btn-export {
       background-color: #9b59b6;
     }
-    .export-btn:hover {
+    .btn-export:hover {
       background-color: #8e44ad;
+    }
+    .btn-back {
+      background-color: #95a5a6;
+    }
+    .btn-back:hover {
+      background-color: #7f8c8d;
+    }
+    .client-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      background: #fff;
+    }
+    .client-item input {
+      margin: 0;
+      font-size: 14px;
+    }
+    .add-more {
+      text-align: center;
+      color: #16a085;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 8px;
+      border: 1px dashed #16a085;
+      border-radius: 6px;
+      margin: 10px 0;
+      font-size: 0.9em;
+    }
+    .add-more:hover {
+      background: #eaf6f6;
+    }
+    @media (max-width: 600px) {
+      .grid, .client-item {
+        grid-template-columns: 1fr;
+      }
+      .btn-group {
+        flex-direction: column;
+      }
+      .container {
+        padding: 15px;
+      }
+      h1 {
+        font-size: 1.3em;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>توليد حسابات بنكية فرعية</h1>
-    <p>أدخل رقم IBAN الأساسي وعدد الحسابات الفرعية المطلوبة.</p>
+    <h1>نظام توليد الحسابات البنكية</h1>
+    <p>توليد حسابات فرعية ديناميكية + ربط العملاء + تصدير إلى Excel / PDF</p>
 
-    <label for="baseIban">رقم IBAN الأساسي (مثلاً: SA78 8000 0341 6080 1604 1000)</label>
-    <input type="text" id="baseIban" placeholder="أدخل IBAN أساسي" />
+    <!-- الخطوة 1: إعدادات أولية -->
+    <div id="step1" class="step">
+      <h2>الخطوة 1: إعدادات التوليد</h2>
+      <label for="baseIban">رقم IBAN الأساسي</label>
+      <input type="text" id="baseIban" placeholder="SA78 8000 0341 6080 1604 1000" />
 
-    <label for="count">عدد الحسابات الفرعية</label>
-    <input type="number" id="count" min="1" max="1000" value="5" />
+      <div class="grid">
+        <div>
+          <label for="startPos">الخانة الابتدائية (1-22)</label>
+          <input type="number" id="startPos" min="1" max="22" value="19" />
+        </div>
+        <div>
+          <label for="endPos">الخانة النهائية (1-22)</label>
+          <input type="number" id="endPos" min="1" max="22" value="21" />
+        </div>
+      </div>
 
-    <button onclick="generateAccounts()">توليد الحسابات</button>
+      <label for="idPattern">نمط معرف العميل (مثل: CUST-{000})</label>
+      <input type="text" id="idPattern" placeholder="CUST-{000}" value="CUST-{000}" />
 
-    <div id="results" style="display: none;"></div>
+      <button onclick="startClientEntry()">ابدأ بإضافة العملاء</button>
+    </div>
 
-    <button id="copyBtn" class="copy-btn" style="display: none;" onclick="copyResults()">نسخ النتائج</button>
-    <button id="exportBtn" class="export-btn" style="display: none;" onclick="exportToFile()">تصدير إلى ملف نصي</button>
+    <!-- الخطوة 2: إدخال العملاء (ديناميكي) -->
+    <div id="step2" class="step hidden">
+      <h2>الخطوة 2: أضف العملاء (كل عميل يحصل على حساب جديد)</h2>
+      <p>اضغط على "إضافة عميل" لتوليد حساب جديد وربطه بالعميل.</p>
+      <div id="clientsContainer"></div>
+      <div class="add-more" onclick="addNewClient()">+ إضافة عميل جديد (مع توليد حساب)</div>
+      <button onclick="finalizeClients()">إكمال وعرض النتائج</button>
+      <button class="btn-back" onclick="goToStep1()">العودة</button>
+    </div>
+
+    <!-- الخطوة 3: النتائج -->
+    <div id="step3" class="step hidden">
+      <h2>النتائج النهائية</h2>
+      <pre id="results"></pre>
+      <div class="btn-group">
+        <button class="btn btn-copy" onclick="copyResults()">نسخ النتائج</button>
+        <button class="btn btn-export" onclick="exportToCSV()">تصدير إلى Excel (CSV)</button>
+        <button class="btn btn-export" onclick="exportToPDF()">تصدير إلى PDF</button>
+        <button class="btn btn-back" onclick="goToStep2()">العودة</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    function generateAccounts() {
-      const baseIbanInput = document.getElementById("baseIban").value.trim().replace(/\s+/g, "");
-      const count = parseInt(document.getElementById("count").value);
+    // المتغيرات العامة
+    let baseIbanClean = "";
+    let startPos = 0;
+    let endPos = 0;
+    let prefix = "";
+    let suffix = "";
+    let editableLength = 0;
+    let nextValue = 0; // القيمة التالية للتعديل
+    let clientIdPattern = "CUST-{000}";
+    let clientAccounts = []; // تخزين الحسابات مع العملاء
 
-      const resultsDiv = document.getElementById("results");
-      const copyBtn = document.getElementById("copyBtn");
-      const exportBtn = document.getElementById("exportBtn");
+    function startClientEntry() {
+      const baseIban = document.getElementById("baseIban").value.trim().replace(/\s+/g, "");
+      startPos = parseInt(document.getElementById("startPos").value) - 1;
+      endPos = parseInt(document.getElementById("endPos").value);
+      clientIdPattern = document.getElementById("idPattern").value.trim() || "CUST-{000}";
 
-      // التحقق من المدخلات
-      if (!baseIbanInput || !baseIbanInput.startsWith("SA") || baseIbanInput.length !== 24) {
-        alert("يرجى إدخال رقم IBAN صحيح (24 حرفًا، يبدأ بـ SA)");
+      if (!baseIban || !baseIban.startsWith("SA") || baseIban.length !== 24) {
+        alert("الرجاء إدخال IBAN صحيح (24 حرفًا، يبدأ بـ SA)");
+        return;
+      }
+      if (startPos < 0 || endPos > 22 || startPos >= endPos) {
+        alert("نطاق الخانات غير صحيح.");
         return;
       }
 
-      if (isNaN(count) || count < 1 || count > 1000) {
-        alert("الرجاء إدخال عدد صحيح بين 1 و1000");
-        return;
+      baseIbanClean = baseIban;
+      const nationalPart = baseIban.substring(2);
+      prefix = nationalPart.substring(0, startPos);
+      suffix = nationalPart.substring(endPos);
+      editableLength = endPos - startPos;
+
+      // بدء التسلسل من 0
+      nextValue = 0;
+
+      // تفريغ قائمة العملاء
+      clientAccounts = [];
+      document.getElementById("clientsContainer").innerHTML = "";
+      document.getElementById("step1").classList.add("hidden");
+      document.getElementById("step2").classList.remove("hidden");
+
+      // إضافة أول عميل تلقائيًا
+      addNewClient();
+    }
+
+    function generateNextIban() {
+      const maxValue = Math.pow(10, editableLength) - 1;
+      if (nextValue > maxValue) {
+        alert("تم استهلاك جميع الأرقام الممكنة في النطاق المحدد.");
+        return null;
       }
 
-      // استخراج الجزء الوطني (بعد SA)
-      const nationalPart = baseIbanInput.substring(2); // 22 رقم
-      const accountPrefix = nationalPart.slice(0, -4); // أول 18 رقم
-      let suffixNum = parseInt(nationalPart.slice(-4)); // آخر 4 أرقام
+      const numStr = (nextValue).toString().padStart(editableLength, '0');
+      nextValue++;
 
-      let results = [];
-      let output = "";
+      const newNational = prefix + numStr + suffix;
+      const newIban = "SA" + newNational;
+      const formattedIban = newIban.match(/.{1,4}/g).join(" ");
 
-      for (let i = 0; i < count; i++) {
-        const newSuffix = suffixNum + i;
-        if (newSuffix > 9999) {
-          output += `[تحذير] تجاوز الحد الأقصى للحسابات بعد ${i} حسابات.\n`;
-          break;
-        }
+      return { iban: formattedIban, national: newNational };
+    }
 
-        const newSuffixStr = String(newSuffix).padStart(4, '0');
-        const newNational = accountPrefix + newSuffixStr;
-        const newIban = "SA" + newNational;
+    function generateAutoId(index) {
+      const pattern = clientIdPattern;
+      const match = pattern.match(/\{(.+?)\}/);
+      if (!match) return `ID-${index + 1}`;
+      const format = match[1];
+      const len = format.length;
+      const startNum = parseInt(format.replace(/\D/g, '')) || 0;
+      const num = startNum + index;
+      return pattern.replace(/\{(.+?)\}/, num.toString().padStart(len, '0'));
+    }
 
-        // تنسيق IBAN مع مسافات كل 4 أحرف
-        const formattedIban = newIban.match(/.{1,4}/g).join(" ");
+    function addNewClient() {
+      const account = generateNextIban();
+      if (!account) return;
 
-        results.push(formattedIban);
-        output += `${i+1}: ${formattedIban}\n`;
-      }
+      const container = document.getElementById("clientsContainer");
+      const index = clientAccounts.length;
+      const autoId = generateAutoId(index);
 
-      // عرض النتائج
-      resultsDiv.style.display = "block";
-      resultsDiv.textContent = output;
-      copyBtn.style.display = "block";
-      exportBtn.style.display = "block";
+      const item = document.createElement("div");
+      item.className = "client-item";
+      item.dataset.index = index;
+      item.innerHTML = `
+        <div>
+          <small>الحساب: ${account.iban}</small>
+        </div>
+        <input type="text" class="client-name" placeholder="اسم العميل" />
+        <input type="text" class="client-id" value="${autoId}" />
+      `;
+      container.appendChild(item);
+
+      // حفظ الحساب
+      clientAccounts.push({
+        iban: account.iban,
+        national: account.national,
+        name: "",
+        id: autoId
+      });
+    }
+
+    function finalizeClients() {
+      // تحديث البيانات من الحقول
+      const items = document.querySelectorAll(".client-item");
+      items.forEach((item, i) => {
+        const name = item.querySelector(".client-name").value.trim() || "(بدون اسم)";
+        const id = item.querySelector(".client-id").value.trim();
+        clientAccounts[i].name = name;
+        clientAccounts[i].id = id;
+      });
+
+      // إعداد عرض النتائج
+      let output = "الحساب\t\t\t\t\tالاسم\t\t\t\tالمعرف\t\tالحساب الوطني\n";
+      output += "─".repeat(130) + "\n";
+
+      clientAccounts.forEach(acc => {
+        output += `${acc.iban}\t${acc.name.padEnd(20)}\t${acc.id.padEnd(15)}\t${acc.national}\n`;
+      });
+
+      window.exportData = clientAccounts;
+      document.getElementById("results").textContent = output;
+      document.getElementById("step2").classList.add("hidden");
+      document.getElementById("step3").classList.remove("hidden");
     }
 
     function copyResults() {
-      const resultsText = document.getElementById("results").textContent;
-      navigator.clipboard.writeText(resultsText)
-        .then(() => alert("تم نسخ النتائج إلى الحافظة!"))
+      const text = document.getElementById("results").textContent;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("تم النسخ إلى الحافظة!"))
         .catch(err => alert("فشل النسخ: " + err));
     }
 
-    function exportToFile() {
-      const resultsText = document.getElementById("results").textContent;
-      const blob = new Blob([resultsText], { type: "text/plain;charset=utf-8" });
+    function exportToCSV() {
+      const csv = Papa.unparse(window.exportData.map(r => ({
+        "رقم الحساب": r.iban,
+        "اسم العميل": r.name,
+        "المعرف": r.id,
+        "الحساب الوطني": r.national
+      })));
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `حسابات_فرعية_${new Date().getTime()}.txt`;
+      a.download = `حسابات_العملاء_${Date.now()}.csv`;
       a.click();
       URL.revokeObjectURL(url);
+    }
+
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(12);
+      doc.text("بيانات الحسابات البنكية", 14, 15);
+      doc.autoTable({
+        head: [['رقم الحساب', 'اسم العميل', 'المعرف', 'الحساب الوطني']],
+        body: window.exportData.map(r => [r.iban, r.name, r.id, r.national]),
+        startY: 20
+      });
+      doc.save(`حسابات_العملاء_${Date.now()}.pdf`);
+    }
+
+    function goToStep1() {
+      document.getElementById("step2").classList.add("hidden");
+      document.getElementById("step1").classList.remove("hidden");
+    }
+
+    function goToStep2() {
+      document.getElementById("step3").classList.add("hidden");
+      document.getElementById("step2").classList.remove("hidden");
     }
   </script>
 </body>
