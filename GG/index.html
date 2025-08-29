@@ -13,8 +13,10 @@
     <p>المستوى: <span id="level">1</span></p>
 
     <div class="farm">
-      <img src="https://openclipart.org/download/289728/1496555092.svg" 
-           alt="أرض زراعية" class="field" />
+      <!-- صورة النبات -->
+      <img src="tomato.png" alt="نبات طماطم" id="plant" class="plant-img" />
+      
+      <!-- زر الزراعة -->
       <button id="plantBtn">زرع بذرة 🌱</button>
     </div>
 
@@ -23,6 +25,9 @@
       <button onclick="buyUpgrade()">شراء ترقية (50 نقطة)</button>
     </div>
   </div>
+
+  <!-- صوت النقر -->
+  <audio id="clickSound" src="click.mp3"></audio>
 
   <script src="script.js"></script>
 </body>
