@@ -1,7 +1,6 @@
-// --- تحميل البيانات المحفوظة من localStorage ---
+// --- تحميل البيانات المحفوظة ---
 let score = parseInt(localStorage.getItem("farmScore")) || 0;
 let level = parseInt(localStorage.getItem("farmLevel")) || 1;
-let upgradePurchased = localStorage.getItem("farmUpgrade") === "true";
 
 // --- ربط العناصر ---
 const scoreElement = document.getElementById("score");
@@ -10,15 +9,35 @@ const plantBtn = document.getElementById("plantBtn");
 const plantImg = document.getElementById("plant");
 const clickSound = document.getElementById("clickSound");
 
-// --- عرض البيانات عند التحميل ---
+// --- تحديث العرض عند التحميل ---
 scoreElement.textContent = score;
 levelElement.textContent = level;
 
-// --- تحديث الحفظ بعد أي تغيير ---
+// --- مسارات صور مراحل النمو ---
+const plantStages = [
+  "plant1.png",  // المستوى 1: بذرة
+  "plant2.png",  // المستوى 2: نبات بأوراق
+  "plant3.png",  // المستوى 3: نبات مع زهرة
+  "plant4.png"   // المستوى 4: نبات ناضج بالطماطم
+];
+
+// --- دالة لتحديث صورة النبات ---
+function updatePlantImage() {
+  const stageIndex = Math.min(level - 1, 3); // من 0 إلى 3
+  plantImg.src = plantStages[stageIndex];
+  plantImg.style.opacity = 0.4;
+  setTimeout(() => {
+    plantImg.style.opacity = 1;
+  }, 300);
+}
+
+// --- استدعاء الدالة عند التحميل ---
+updatePlantImage();
+
+// --- دالة لحفظ التقدم ---
 function saveGame() {
   localStorage.setItem("farmScore", score);
   localStorage.setItem("farmLevel", level);
-  localStorage.setItem("farmUpgrade", upgradePurchased);
 }
 
 // --- حدث النقر على الزر ---
@@ -29,7 +48,6 @@ plantBtn.addEventListener("click", () => {
 
   // إضافة النقاط
   score += 1;
-  if (upgradePurchased) score += 1; // الترقية تعطي نقطة إضافية
   scoreElement.textContent = score;
 
   // تأثير النمو
@@ -38,33 +56,46 @@ plantBtn.addEventListener("click", () => {
     plantImg.classList.remove("grow");
   }, 200);
 
-  // ترقية المستوى
-  if (score >= level * 10 && level < 10) {
+  // الترقية إلى المستوى التالي
+  const oldLevel = level;
+  if (score >= level * 10 && level < 4) {
     level++;
     levelElement.textContent = level;
-    alert(`🎉 تهانًا! ارتقيت إلى المستوى ${level}`);
+    updatePlantImage(); // تغيير الصورة
+    alert(`🎉 تهانًا! نباتك تطور إلى المرحلة ${level}!`);
+  } else if (level === 4 && oldLevel === level && score % 10 === 0) {
+    // تأثير بسيط عند الاستمرار بعد المستوى 4
+    plantImg.style.transform = "scale(1.08)";
+    setTimeout(() => {
+      plantImg.style.transform = "scale(1)";
+    }, 300);
   }
 
-  // حفظ التقدم فورًا
+  // حفظ التقدم
   saveGame();
 });
 
-// --- شراء ترقية ---
-function buyUpgrade() {
-  if (score >= 50 && !upgradePurchased) {
-    score -= 50;
-    upgradePurchased = true;
+// --- دالة إعادة التقدم (البدء من جديد) ---
+function resetProgress() {
+  if (confirm("هل أنت متأكد أنك تريد البدء من جديد؟")) {
+    // مسح البيانات من localStorage
+    localStorage.removeItem("farmScore");
+    localStorage.removeItem("farmLevel");
+
+    // إعادة تعيين المتغيرات
+    score = 0;
+    level = 1;
     scoreElement.textContent = score;
-    alert("✅ اشتريت ترقية: كل نقرة تعطي نقطتين!");
-    saveGame(); // حفظ بعد الشراء
-  } else if (upgradePurchased) {
-    alert("لقد اشتريت هذه الترقية مسبقًا!");
-  } else {
-    alert("ليس لديك نقاط كافية!");
+    levelElement.textContent = level;
+
+    // إعادة صورة النبات إلى البذرة
+    updatePlantImage();
+
+    alert("🌱 تم مسح التقدم. ابدأ من جديد!");
   }
 }
 
-// --- (اختياري) رسالة ترحيب عند أول دخول ---
+// --- رسالة ترحيب عند أول دخول ---
 if (!localStorage.getItem("farmScore")) {
-  alert("🌱 مرحباً في مزرعتك! ابدأ بالزرع واجمع النقاط.");
+  alert("🌱 مرحباً في مزرعتك! انقر لزراعة البذرة وشاهد نباتك ينمو مع كل نقرة!");
 }
