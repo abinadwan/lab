@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>توليد حسابات بنكية فرعية</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+      text-align: right;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input, button {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    #results {
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 5px;
+      background: #f9f9f9;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .copy-btn {
+      background-color: #27ae60;
+      padding: 8px;
+      font-size: 14px;
+    }
+    .copy-btn:hover {
+      background-color: #219955;
+    }
+    .export-btn {
+      background-color: #9b59b6;
+    }
+    .export-btn:hover {
+      background-color: #8e44ad;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>توليد حسابات بنكية فرعية</h1>
+    <p>أدخل رقم IBAN الأساسي وعدد الحسابات الفرعية المطلوبة.</p>
+
+    <label for="baseIban">رقم IBAN الأساسي (مثلاً: SA78 8000 0341 6080 1604 1000)</label>
+    <input type="text" id="baseIban" placeholder="أدخل IBAN أساسي" />
+
+    <label for="count">عدد الحسابات الفرعية</label>
+    <input type="number" id="count" min="1" max="1000" value="5" />
+
+    <button onclick="generateAccounts()">توليد الحسابات</button>
+
+    <div id="results" style="display: none;"></div>
+
+    <button id="copyBtn" class="copy-btn" style="display: none;" onclick="copyResults()">نسخ النتائج</button>
+    <button id="exportBtn" class="export-btn" style="display: none;" onclick="exportToFile()">تصدير إلى ملف نصي</button>
+  </div>
+
+  <script>
+    function generateAccounts() {
+      const baseIbanInput = document.getElementById("baseIban").value.trim().replace(/\s+/g, "");
+      const count = parseInt(document.getElementById("count").value);
+
+      const resultsDiv = document.getElementById("results");
+      const copyBtn = document.getElementById("copyBtn");
+      const exportBtn = document.getElementById("exportBtn");
+
+      // التحقق من المدخلات
+      if (!baseIbanInput || !baseIbanInput.startsWith("SA") || baseIbanInput.length !== 24) {
+        alert("يرجى إدخال رقم IBAN صحيح (24 حرفًا، يبدأ بـ SA)");
+        return;
+      }
+
+      if (isNaN(count) || count < 1 || count > 1000) {
+        alert("الرجاء إدخال عدد صحيح بين 1 و1000");
+        return;
+      }
+
+      // استخراج الجزء الوطني (بعد SA)
+      const nationalPart = baseIbanInput.substring(2); // 22 رقم
+      const accountPrefix = nationalPart.slice(0, -4); // أول 18 رقم
+      let suffixNum = parseInt(nationalPart.slice(-4)); // آخر 4 أرقام
+
+      let results = [];
+      let output = "";
+
+      for (let i = 0; i < count; i++) {
+        const newSuffix = suffixNum + i;
+        if (newSuffix > 9999) {
+          output += `[تحذير] تجاوز الحد الأقصى للحسابات بعد ${i} حسابات.\n`;
+          break;
+        }
+
+        const newSuffixStr = String(newSuffix).padStart(4, '0');
+        const newNational = accountPrefix + newSuffixStr;
+        const newIban = "SA" + newNational;
+
+        // تنسيق IBAN مع مسافات كل 4 أحرف
+        const formattedIban = newIban.match(/.{1,4}/g).join(" ");
+
+        results.push(formattedIban);
+        output += `${i+1}: ${formattedIban}\n`;
+      }
+
+      // عرض النتائج
+      resultsDiv.style.display = "block";
+      resultsDiv.textContent = output;
+      copyBtn.style.display = "block";
+      exportBtn.style.display = "block";
+    }
+
+    function copyResults() {
+      const resultsText = document.getElementById("results").textContent;
+      navigator.clipboard.writeText(resultsText)
+        .then(() => alert("تم نسخ النتائج إلى الحافظة!"))
+        .catch(err => alert("فشل النسخ: " + err));
+    }
+
+    function exportToFile() {
+      const resultsText = document.getElementById("results").textContent;
+      const blob = new Blob([resultsText], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `حسابات_فرعية_${new Date().getTime()}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
