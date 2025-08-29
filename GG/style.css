@@ -16,14 +16,15 @@ body {
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.farm {
-  margin: 20px 0;
+.plant-img {
+  width: 150px;
+  height: 150px;
+  margin: 15px;
+  transition: transform 0.2s;
 }
 
-.field {
-  width: 200px;
-  height: 150px;
-  margin-bottom: 10px;
+.plant-img.grow {
+  transform: scale(1.2);
 }
 
 #plantBtn {
@@ -34,8 +35,18 @@ body {
   font-size: 18px;
   border-radius: 10px;
   cursor: pointer;
+  margin: 10px 0;
 }
 
 #plantBtn:hover {
   background-color: #388e3c;
+}
+
+.shop button {
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
 }
