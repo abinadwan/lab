@@ -13,18 +13,24 @@ body {
   padding: 20px;
   border-radius: 15px;
   background: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.farm {
+  margin: 20px 0;
 }
 
 .plant-img {
-  width: 150px;
-  height: 150px;
+  width: 180px;
+  height: 180px;
   margin: 15px;
-  transition: transform 0.2s;
+  transition: transform 0.3s, opacity 0.5s ease-in-out;
+  border-radius: 10px;
+  opacity: 1;
 }
 
 .plant-img.grow {
-  transform: scale(1.2);
+  transform: scale(1.1);
 }
 
 #plantBtn {
@@ -35,7 +41,7 @@ body {
   font-size: 18px;
   border-radius: 10px;
   cursor: pointer;
-  margin: 10px 0;
+  margin-top: 10px;
 }
 
 #plantBtn:hover {
@@ -43,10 +49,17 @@ body {
 }
 
 .shop button {
-  background-color: #ff9800;
+  background-color: #9c27b0;
   color: white;
   border: none;
   padding: 10px 15px;
+  font-size: 16px;
   border-radius: 8px;
   cursor: pointer;
+  margin-top: 15px;
+  width: 80%;
+}
+
+.shop button:hover {
+  background-color: #7b1fa2;
 }
