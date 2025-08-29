@@ -13,16 +13,13 @@
     <p>المستوى: <span id="level">1</span></p>
 
     <div class="farm">
-      <!-- صورة النبات -->
-      <img src="tomato.png" alt="نبات طماطم" id="plant" class="plant-img" />
-      
-      <!-- زر الزراعة -->
+      <!-- صورة النبات التي تتغير حسب المستوى -->
+      <img id="plant" class="plant-img" alt="نمو النبات" />
       <button id="plantBtn">زرع بذرة 🌱</button>
     </div>
 
     <div class="shop">
-      <h3>المتجر</h3>
-      <button onclick="buyUpgrade()">شراء ترقية (50 نقطة)</button>
+      <button onclick="resetProgress()">البدء من جديد 🔄</button>
     </div>
   </div>
 
