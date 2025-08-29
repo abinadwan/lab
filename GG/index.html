@@ -1,1 +1,29 @@
-test
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>مزرعتي الصغيرة</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="game-container">
+    <h1>🌱 مزرعتي الصغيرة</h1>
+    <p>النقاط: <span id="score">0</span></p>
+    <p>المستوى: <span id="level">1</span></p>
+
+    <div class="farm">
+      <img src="https://openclipart.org/download/289728/1496555092.svg" 
+           alt="أرض زراعية" class="field" />
+      <button id="plantBtn">زرع بذرة 🌱</button>
+    </div>
+
+    <div class="shop">
+      <h3>المتجر</h3>
+      <button onclick="buyUpgrade()">شراء ترقية (50 نقطة)</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
