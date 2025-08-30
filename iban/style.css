@@ -5,26 +5,35 @@
   --primary-light: #dbeafe;
   --text: #1e3a8a;
   --border: #bfdbfe;
+  --bg: #f0f9ff;
+  --card-bg: #ffffff;
+  --shadow: 0 8px 25px rgba(26, 86, 219, 0.15);
+  --transition: all 0.3s ease;
 }
 
 * {
   box-sizing: border-box;
 }
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f0f9ff;
+  background: var(--bg);
   padding: 15px;
   margin: 0;
   color: var(--text);
+  line-height: 1.6;
+  direction: rtl;
 }
+
 .container {
   max-width: 900px;
   margin: auto;
-  background: white;
+  background: var(--card-bg);
   padding: 25px;
   border-radius: 14px;
-  box-shadow: 0 8px 25px rgba(26, 86, 219, 0.15);
+  box-shadow: var(--shadow);
 }
+
 h1 {
   color: var(--primary-dark);
   text-align: center;
@@ -32,26 +41,32 @@ h1 {
   font-weight: 600;
   margin-bottom: 10px;
 }
+
 .step {
   margin-bottom: 25px;
   padding: 20px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--card-bg);
+  transition: var(--transition);
 }
+
 .step h2 {
   margin-top: 0;
   color: var(--primary);
   font-size: 1.3em;
   border-bottom: 2px solid var(--primary-light);
   padding-bottom: 8px;
+  font-weight: 600;
 }
+
 label {
   font-weight: bold;
   display: block;
   margin: 10px 0 5px;
   color: var(--primary-dark);
 }
+
 input, select, button {
   padding: 12px;
   width: 100%;
@@ -59,12 +74,16 @@ input, select, button {
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
+  transition: var(--transition);
 }
+
 input:focus, select:focus {
   border-color: var(--primary);
   outline: none;
   box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.2);
+  transform: translateY(-1px);
 }
+
 button {
   background-color: var(--primary);
   color: white;
@@ -72,18 +91,29 @@ button {
   cursor: pointer;
   font-weight: bold;
   border-radius: 8px;
+  transition: var(--transition);
 }
+
 button:hover {
   background-color: var(--primary-dark);
+  transform: translateY(-1px);
 }
+
+button:active {
+  transform: translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
+
 .hidden {
   display: none;
 }
+
 #results {
   direction: ltr;
   text-align: left;
@@ -97,19 +127,27 @@ button:hover {
   max-height: 400px;
   overflow-y: auto;
   white-space: pre;
+  font-weight: 500;
 }
+
 .btn-group {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 16px;
 }
+
 .btn-copy { background-color: #059669; }
 .btn-export { background-color: #7c3aed; }
 .btn-back { background-color: #6b7280; }
-.btn-copy:hover, .btn-export:hover, .btn-back:hover {
+
+.btn-copy:hover,
+.btn-export:hover,
+.btn-back:hover {
   opacity: 0.9;
+  transform: translateY(-1px);
 }
+
 .client-item {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -118,7 +156,9 @@ button:hover {
   border: 1px solid #dbeafe;
   border-radius: 8px;
   background: #f8fafc;
+  transition: var(--transition);
 }
+
 .client-item input {
   margin: 0;
   font-size: 14px;
@@ -126,7 +166,14 @@ button:hover {
   border-radius: 6px;
   background: white;
   border: 1px solid #e0e7ff;
+  transition: var(--transition);
 }
+
+.client-item input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
 .add-more {
   text-align: center;
   color: var(--primary);
@@ -136,12 +183,27 @@ button:hover {
   border: 1px dashed var(--primary-light);
   border-radius: 8px;
   margin: 15px 0;
+  transition: var(--transition);
 }
+
 .add-more:hover {
   background: var(--primary-light);
   color: white;
+  transform: scale(1.02);
 }
+
 @media (max-width: 600px) {
-  .grid, .client-item { grid-template-columns: 1fr; }
-  .btn-group { flex-direction: column; }
+  .grid,
+  .client-item {
+    grid-template-columns: 1fr;
+  }
+  .btn-group {
+    flex-direction: column;
+  }
+  .container {
+    padding: 15px;
+  }
+  h1 {
+    font-size: 1.5em;
+  }
 }
