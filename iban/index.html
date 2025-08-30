@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>نظام توليد الحسابات البنكية</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>نظام توليد الحسابات البنكية</h1>
+
+    <!-- الخطوة 1 -->
+    <div id="step1" class="step">
+      <h2>الخطوة 1: توليد الحسابات</h2>
+      <label>رقم IBAN الأساسي (24 حرفًا)</label>
+      <input type="text" id="baseIban" placeholder="SA78 8000 0341 6080 1604 1000" maxlength="24" />
+
+      <div class="grid">
+        <div>
+          <label>اختر الخانة الابتدائية (3 إلى 20)</label>
+          <select id="startPosSelect"></select>
+        </div>
+        <div>
+          <label>الخانة النهائية (تُحسب تلقائيًا)</label>
+          <input type="text" id="endPosDisplay" readonly />
+        </div>
+      </div>
+
+      <label>عدد الحسابات الأولية</label>
+      <input type="number" id="initialCount" min="1" max="100" value="3" />
+
+      <label>نمط المعرف (مثل: CUST-{000})</label>
+      <input type="text" id="idPattern" value="CUST-{000}" />
+
+      <button onclick="startGeneration()">توليد الحسابات</button>
+    </div>
+
+    <!-- الخطوة 2 -->
+    <div id="step2" class="step hidden">
+      <h2>الخطوة 2: أدخل بيانات العملاء</h2>
+      <p>اضغط على "إضافة عميل جديد" لتوليد حساب جديد.</p>
+      <div id="clientsContainer"></div>
+      <div class="add-more" onclick="addNewClient()">+ إضافة عميل جديد</div>
+      <button onclick="finalizeClients()">إكمال وعرض النتائج</button>
+      <button class="btn-back" onclick="goToStep1()">العودة</button>
+    </div>
+
+    <!-- الخطوة 3 -->
+    <div id="step3" class="step hidden">
+      <h2>النتائج النهائية</h2>
+      <pre id="results"></pre>
+      <div class="btn-group">
+        <button class="btn-copy" onclick="copyResults()">نسخ النتائج</button>
+        <button class="btn-export" onclick="exportToCSV()">تصدير إلى Excel</button>
+        <button class="btn-export" onclick="exportToPDF()">تصدير إلى PDF</button>
+        <button class="btn-back" onclick="goToStep2()">العودة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- تحميل المكتبات أولاً -->
+  <script src="lib/jspdf.umd.min.js"></script>
+  <script src="lib/jspdf.plugin.autotable.min.js"></script>
+  <script src="lib/papaparse.min.js"></script>
+  <!-- ثم تحميل المنطق -->
+  <script src="script.js"></script>
+</body>
+</html>
