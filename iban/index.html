@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>نظام توليد الحسابات البنكية</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- تحميل مكتبة PapaParse فقط (لتصدير CSV) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>نظام توليد الحسابات البنكية</h1>
 
-    <!-- الخطوة 1 -->
+    <!-- الخطوة 1: توليد الحسابات -->
     <div id="step1" class="step">
       <h2>الخطوة 1: توليد الحسابات</h2>
       <label>رقم IBAN الأساسي (24 حرفًا)</label>
@@ -36,7 +38,7 @@
       <button onclick="startGeneration()">توليد الحسابات</button>
     </div>
 
-    <!-- الخطوة 2 -->
+    <!-- الخطوة 2: إدخال بيانات العملاء -->
     <div id="step2" class="step hidden">
       <h2>الخطوة 2: أدخل بيانات العملاء</h2>
       <p>اضغط على "إضافة عميل جديد" لتوليد حساب جديد.</p>
@@ -46,24 +48,19 @@
       <button class="btn-back" onclick="goToStep1()">العودة</button>
     </div>
 
-    <!-- الخطوة 3 -->
+    <!-- الخطوة 3: عرض النتائج والتصدير -->
     <div id="step3" class="step hidden">
       <h2>النتائج النهائية</h2>
       <pre id="results"></pre>
       <div class="btn-group">
         <button class="btn-copy" onclick="copyResults()">نسخ النتائج</button>
-        <button class="btn-export" onclick="exportToCSV()">تصدير إلى Excel</button>
-        <button class="btn-export" onclick="exportToPDF()">تصدير إلى PDF</button>
+        <button class="btn-export" onclick="exportToCSV()">تصدير إلى Excel (CSV)</button>
         <button class="btn-back" onclick="goToStep2()">العودة</button>
       </div>
     </div>
   </div>
 
-  <!-- تحميل المكتبات أولاً -->
-  <script src="lib/jspdf.umd.min.js"></script>
-  <script src="lib/jspdf.plugin.autotable.min.js"></script>
-  <script src="lib/papaparse.min.js"></script>
-  <!-- ثم تحميل المنطق -->
+  <!-- تحميل المنطق بعد تحميل المكتبة -->
   <script src="script.js"></script>
 </body>
 </html>
