@@ -3,69 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>نظام الحسابات البنكية - يدعم العربية</title>
+  <title>نظام توليد الحسابات البنكية</title>
   <!-- مكتبات للتصدير -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <style>
+    :root {
+      --primary: #1a56db;
+      --primary-dark: #1e40af;
+      --primary-light: #dbeafe;
+      --text: #1e3a8a;
+      --border: #bfdbfe;
+    }
+
     * {
       box-sizing: border-box;
     }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f7fa;
+      background: #f0f9ff;
       padding: 15px;
       margin: 0;
-      color: #333;
+      color: var(--text);
     }
     .container {
       max-width: 900px;
       margin: auto;
       background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 8px 25px rgba(26, 86, 219, 0.15);
     }
     h1 {
-      color: #2c3e50;
+      color: var(--primary-dark);
       text-align: center;
-      font-size: 1.5em;
+      font-size: 1.6em;
+      font-weight: 600;
     }
     .step {
       margin-bottom: 25px;
-      padding: 18px;
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
-      background: #fafbfd;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #ffffff;
+    }
+    .step h2 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 1.3em;
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 8px;
     }
     label {
       font-weight: bold;
       display: block;
-      margin: 8px 0 4px;
+      margin: 10px 0 5px;
+      color: var(--primary-dark);
     }
-    input, button {
-      padding: 11px;
+    input, select, button {
+      padding: 12px;
       width: 100%;
       margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
       font-size: 16px;
     }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.2);
+    }
     button {
-      background-color: #3498db;
+      background-color: var(--primary);
       color: white;
       border: none;
       cursor: pointer;
       font-weight: bold;
+      border-radius: 8px;
     }
     button:hover {
-      background-color: #2980b9;
+      background-color: var(--primary-dark);
     }
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 14px;
     }
     .hidden {
       display: none;
@@ -73,45 +96,63 @@
     #results {
       direction: ltr;
       text-align: left;
-      font-family: monospace;
-      white-space: pre;
-      background: #f0f4f8;
-      padding: 15px;
-      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      line-height: 1.7;
+      background: #eff6ff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
       max-height: 400px;
       overflow-y: auto;
+      white-space: pre;
     }
     .btn-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
+      margin-top: 16px;
     }
-    .btn-copy {
-      background-color: #27ae60;
-    }
-    .btn-export {
-      background-color: #9b59b6;
-    }
-    .btn-back {
-      background-color: #95a5a6;
+    .btn-copy { background-color: #059669; }
+    .btn-export { background-color: #7c3aed; }
+    .btn-back { background-color: #6b7280; }
+    .btn-copy:hover, .btn-export:hover, .btn-back:hover {
+      opacity: 0.9;
     }
     .client-item {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 8px;
-      padding: 10px;
-      border: 1px solid #eee;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+    .client-item input {
+      margin: 0;
+      font-size: 14px;
+      padding: 8px;
       border-radius: 6px;
-      background: #fff;
+      background: white;
+      border: 1px solid #e0e7ff;
     }
     .add-more {
       text-align: center;
-      color: #16a085;
+      color: var(--primary);
       font-weight: bold;
       cursor: pointer;
-      padding: 8px;
-      border: 1px dashed #16a085;
-      border-radius: 6px;
+      padding: 10px;
+      border: 1px dashed var(--primary-light);
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    .add-more:hover {
+      background: var(--primary-light);
+      color: white;
+    }
+    @media (max-width: 600px) {
+      .grid, .client-item { grid-template-columns: 1fr; }
+      .btn-group { flex-direction: column; }
     }
   </style>
 </head>
@@ -121,23 +162,25 @@
 
     <!-- الخطوة 1 -->
     <div id="step1" class="step">
-      <h2>الخطوة 1: الإعدادات</h2>
-      <label>رقم IBAN الأساسي</label>
-      <input type="text" id="baseIban" placeholder="SA78 8000 0341 6080 1604 1000" />
+      <h2>الخطوة 1: توليد الحسابات</h2>
+      <label>رقم IBAN الأساسي (24 حرفًا)</label>
+      <input type="text" id="baseIban" placeholder="SA78 8000 0341 6080 1604 1000" maxlength="24" />
 
       <div class="grid">
         <div>
-          <label>الخانة الابتدائية (1-22)</label>
-          <input type="number" id="startPos" value="19" />
+          <label>اختر الخانة الابتدائية (3 إلى 20)</label>
+          <select id="startPosSelect">
+            <!-- سيتم ملؤها بالجافاسكريبت من 3 إلى 20 -->
+          </select>
         </div>
         <div>
-          <label>الخانة النهائية (1-22)</label>
-          <input type="number" id="endPos" value="21" />
+          <label>الخانة النهائية (تُحسب تلقائيًا)</label>
+          <input type="text" id="endPosDisplay" readonly value="22" />
         </div>
       </div>
 
       <label>عدد الحسابات الأولية</label>
-      <input type="number" id="initialCount" value="3" />
+      <input type="number" id="initialCount" min="1" max="100" value="3" />
 
       <label>نمط المعرف (مثل: CUST-{000})</label>
       <input type="text" id="idPattern" value="CUST-{000}" />
@@ -148,19 +191,19 @@
     <!-- الخطوة 2 -->
     <div id="step2" class="step hidden">
       <h2>الخطوة 2: أدخل بيانات العملاء</h2>
-      <p>يمكنك إضافة عملاء جدد في أي وقت.</p>
+      <p>اضغط على "إضافة عميل جديد" لتوليد حساب جديد.</p>
       <div id="clientsContainer"></div>
       <div class="add-more" onclick="addNewClient()">+ إضافة عميل جديد</div>
-      <button onclick="finalizeClients()">إكمال</button>
+      <button onclick="finalizeClients()">إكمال وعرض النتائج</button>
       <button class="btn-back" onclick="goToStep1()">العودة</button>
     </div>
 
     <!-- الخطوة 3 -->
     <div id="step3" class="step hidden">
-      <h2>النتائج</h2>
+      <h2>النتائج النهائية</h2>
       <pre id="results"></pre>
       <div class="btn-group">
-        <button class="btn-copy" onclick="copyResults()">نسخ</button>
+        <button class="btn-copy" onclick="copyResults()">نسخ النتائج</button>
         <button class="btn-export" onclick="exportToCSV()">تصدير إلى Excel</button>
         <button class="btn-export" onclick="exportToPDF()">تصدير إلى PDF</button>
         <button class="btn-back" onclick="goToStep2()">العودة</button>
@@ -169,55 +212,99 @@
   </div>
 
   <script>
-    // خط عربي مضمّن (Amiri) - Base64
-    const amiriWoff = `data:font/woff;charset=utf-8;base64,d09GRgABAAAAAAeAAA4AAAAACBAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAABWAAAABwAAAAch6L/Z0dERUYAAAF0AAAAHQAAABwAKAAET1MvMgAAAZQAAABJAAAAYLd4QDpjbWFwAAAB1AAAAEUAAAFS1q42g2N2dCAAAAIYAAAABAAAAAQAKAL4Z2FzcAAAAiwAAAAIAAAACP//AANnbHlmAAACMAAAAHUAAACk1Zl/1mhheHAAAACIAAAAHQAAACADuwEfaG1hcAAAAJAAAABIAAAARLcCAABtYXhwAAAAmAAAACAAAAAgAS4B9G5hbWUAAACwAAAA+QAAARO911oUcG9zdAAAASgAAABcAAAAVvqfj1BwcmVwAAABeAAAALgAAAGq72PwVgAAAAEAAAAA8MhiJwAAAACjl6o+AAAAAMFTuJX+c8uIzr0ESuwAAQAAAAAAAAAAAAAAAAAAAIAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......`;
+    // خط عربي داخلي (Amiri) بصيغة Base64
+    const amiriFont = `application/font-woff;charset=utf-8;base64,d09GRgABAAAAAAeAAA4AAAAACBAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAABWAAAABwAAAAch6L/Z0dERUYAAAF0AAAAHQAAABwAKAAET1MvMgAAAZQAAABJAAAAYLd4QDpjbWFwAAAB1AAAAEUAAAFS1q42g2N2dCAAAAIYAAAABAAAAAQAKAL4Z2FzcAAAAiwAAAAIAAAACP//AANnbHlmAAACMAAAAHUAAACk1Zl/1mhheHAAAACIAAAAHQAAACADuwEfaG1hcAAAAJAAAABIAAAARLcCAABtYXhwAAAAmAAAACAAAAAgAS4B9G5hbWUAAACwAAAA+QAAARO911oUcG9zdAAAASgAAABcAAAAVvqfj1BwcmVwAAABeAAAALgAAAGq72PwVgAAAAEAAAAA8MhiJwAAAACjl6o+AAAAAMFTuJX+c8uIzr0ESuwAAQAAAAAAAAAAAAAAAAAAAIAAAQAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA......`;
 
     let clientAccounts = [];
-    let nextValue = 0;
-    let prefix, suffix, editableLength;
+    let prefix = "", suffix = "";
+    let editableLength = 0;
+
+    // ملء قائمة الخانات الابتدائية (من 3 إلى 20)
+    window.onload = function () {
+      const select = document.getElementById("startPosSelect");
+      for (let i = 3; i <= 20; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.text = `الخانة ${i}`;
+        select.appendChild(option);
+      }
+      updateEndPosition(); // تعيين القيمة الافتراضية
+    };
+
+    // تحديث الخانة النهائية تلقائيًا (ابتدائية + 2)
+    function updateEndPosition() {
+      const start = parseInt(document.getElementById("startPosSelect").value);
+      const end = start + 2;
+      document.getElementById("endPosDisplay").value = end;
+      return { start, end };
+    }
+
+    document.getElementById("startPosSelect").addEventListener("change", updateEndPosition);
 
     function startGeneration() {
       const baseIban = document.getElementById("baseIban").value.trim().replace(/\s+/g, "");
-      const startPos = parseInt(document.getElementById("startPos").value) - 1;
-      const endPos = parseInt(document.getElementById("endPos").value);
+      const { start, end } = updateEndPosition();
       const initialCount = parseInt(document.getElementById("initialCount").value);
-      const idPattern = document.getElementById("idPattern").value || "CUST-{000}";
+      const idPattern = document.getElementById("idPattern").value.trim() || "CUST-{000}";
 
-      if (!baseIban || !baseIban.startsWith("SA") || baseIban.length !== 24) {
-        alert("IBAN غير صالح");
+      // التحقق من طول IBAN
+      if (baseIban.length !== 24) {
+        alert("رقم IBAN يجب أن يكون 24 حرفًا بالضبط.");
         return;
       }
-      if (startPos < 0 || endPos > 22 || startPos >= endPos) {
-        alert("نطاق الخانات غير صحيح");
+      if (!baseIban.startsWith("SA")) {
+        alert("يجب أن يبدأ IBAN بـ SA");
+        return;
+      }
+
+      if (start < 3 || end > 22 || start >= end) {
+        alert("نطاق الخانات غير صحيح.");
+        return;
+      }
+      if (isNaN(initialCount) || initialCount < 1) {
+        alert("الرجاء إدخال عدد صحيح أكبر من 0");
         return;
       }
 
       const nationalPart = baseIban.substring(2);
-      prefix = nationalPart.substring(0, startPos);
-      suffix = nationalPart.substring(endPos);
-      editableLength = endPos - startPos;
-      nextValue = 0;
+      prefix = nationalPart.substring(0, start - 1); // 0-based
+      suffix = nationalPart.substring(end);
+      editableLength = end - start + 1; // عدد الأرقام المعدلة
+
       clientAccounts = [];
+      let nextValue = 0;
 
       document.getElementById("step1").classList.add("hidden");
       document.getElementById("step2").classList.remove("hidden");
       document.getElementById("clientsContainer").innerHTML = "";
 
+      // توليد الحسابات
       for (let i = 0; i < initialCount; i++) {
-        addNewClient();
-      }
-    }
+        const num = (nextValue++).toString().padStart(editableLength, '0');
+        const national = prefix + num + suffix;
+        const iban = "SA" + national;
+        const formattedIban = iban.match(/.{1,4}/g).join(" ");
 
-    function generateIban() {
-      const maxValue = Math.pow(10, editableLength) - 1;
-      if (nextValue > maxValue) return null;
-      const num = (nextValue++).toString().padStart(editableLength, '0');
-      const national = prefix + num + suffix;
-      const iban = "SA" + national;
-      return {
-        iban: iban.match(/.{1,4}/g).join(" "),
-        national
-      };
+        const index = clientAccounts.length;
+        const autoId = generateId(index);
+
+        const item = document.createElement("div");
+        item.className = "client-item";
+        item.innerHTML = `
+          <div><small>${formattedIban}</small></div>
+          <input type="text" class="client-name" placeholder="اسم العميل">
+          <input type="text" class="amount" placeholder="مبلغ العقار (مثل: ١٠٠٠)">
+        `;
+        document.getElementById("clientsContainer").appendChild(item);
+
+        clientAccounts.push({
+          iban: formattedIban,
+          national,
+          name: "",
+          id: autoId,
+          amount: ""
+        });
+      }
     }
 
     function generateId(index) {
@@ -231,39 +318,48 @@
     }
 
     function addNewClient() {
-      const acc = generateIban();
-      if (!acc) return;
+      const { start, end } = updateEndPosition();
+      const maxValue = Math.pow(10, editableLength) - 1;
+      if (clientAccounts.length >= maxValue) {
+        alert("تم استهلاك جميع الأرقام الممكنة في النطاق.");
+        return;
+      }
 
-      const container = document.getElementById("clientsContainer");
+      const num = clientAccounts.length.toString().padStart(editableLength, '0');
+      const national = prefix + num + suffix;
+      const iban = "SA" + national;
+      const formattedIban = iban.match(/.{1,4}/g).join(" ");
       const index = clientAccounts.length;
-      const id = generateId(index);
+      const autoId = generateId(index);
 
       const item = document.createElement("div");
       item.className = "client-item";
       item.innerHTML = `
-        <div><small>${acc.iban}</small></div>
+        <div><small>${formattedIban}</small></div>
         <input type="text" class="client-name" placeholder="اسم العميل">
-        <input type="text" class="client-id" value="${id}">
-        <input type="text" class="amount" placeholder="مبلغ العقار (مثل: ١٠٠٠ أو 1000)">
+        <input type="text" class="amount" placeholder="مبلغ العقار (مثل: ١٠٠٠)">
       `;
-      container.appendChild(item);
+      document.getElementById("clientsContainer").appendChild(item);
 
-      clientAccounts.push({ ...acc, name: "", id, amount: "" });
+      clientAccounts.push({
+        iban: formattedIban,
+        national,
+        name: "",
+        id: autoId,
+        amount: ""
+      });
     }
 
     function finalizeClients() {
       const items = document.querySelectorAll(".client-item");
+      const arToEnMap = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
+
       items.forEach((item, i) => {
         const name = item.querySelector(".client-name").value.trim() || "(بدون اسم)";
-        const id = item.querySelector(".client-id").value.trim();
         let amount = item.querySelector(".amount").value.trim() || "0";
-        // تحويل الأرقام العربية إلى إنجليزية للعرض فقط، مع الحفاظ على الأصل
-        const arToEnMap = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
         amount = amount.replace(/[٠-٩]/g, d => arToEnMap[d]);
         clientAccounts[i].name = name;
-        clientAccounts[i].id = id;
         clientAccounts[i].amount = parseFloat(amount).toFixed(2);
-        // حفظ النص الأصلي (العربي) في خاصية منفصلة إن أردت
       });
 
       let output = "الحساب\t\t\tالاسم\t\t\tالمعرف\t\tالمبلغ\tالحساب الوطني\n";
@@ -280,22 +376,24 @@
 
     function copyResults() {
       const text = document.getElementById("results").textContent;
-      navigator.clipboard.writeText(text).then(() => alert("تم النسخ"));
+      navigator.clipboard.writeText(text)
+        .then(() => alert("تم النسخ إلى الحافظة!"))
+        .catch(err => alert("فشل النسخ: " + err));
     }
 
     function exportToCSV() {
       const csv = Papa.unparse(window.exportData.map(r => ({
-        "الحساب": r.iban,
+        "رقم الحساب": r.iban,
         "الاسم": r.name,
         "المعرف": r.id,
         "المبلغ": r.amount,
         "الحساب الوطني": r.national
       })));
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `تقرير_العملاء_${Date.now()}.csv`;
+      a.download = `تقرير_الحسابات_${Date.now()}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -303,40 +401,23 @@
     function exportToPDF() {
       const { jsPDF } = window.jspdf;
       
-      // تضمين الخط العربي
       jsPDF.API.events.push(['addFonts', function () {
-        this.addFileToVFS('Amiri-Regular.ttf', amiriWoff.split(',')[1]);
+        this.addFileToVFS('Amiri-Regular.ttf', amiriFont.split(',')[1]);
         this.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
       }]);
 
-      const doc = new jsPDF({
-        orientation: 'landscape'
-      });
-      
+      const doc = new jsPDF({ orientation: 'landscape' });
       doc.setFont('Amiri');
       doc.setFontSize(16);
       doc.text("تقرير الحسابات البنكية", 140, 20, { align: "center" });
 
-      const body = window.exportData.map(r => [
-        r.iban,
-        r.name,
-        r.id,
-        r.amount,
-        r.national
-      ]);
-
+      const body = window.exportData.map(r => [r.iban, r.name, r.id, r.amount, r.national]);
       doc.autoTable({
         head: [['رقم الحساب', 'الاسم', 'المعرف', 'المبلغ', 'الحساب الوطني']],
         body: body,
         startY: 30,
         styles: { font: 'Amiri', halign: 'right' },
-        columnStyles: {
-          0: { cellWidth: 40 },
-          1: { cellWidth: 40 },
-          2: { cellWidth: 30 },
-          3: { cellWidth: 25 },
-          4: { cellWidth: 50 }
-        }
+        columnStyles: { 0: { cellWidth: 40 }, 1: { cellWidth: 40 }, 2: { cellWidth: 30 }, 3: { cellWidth: 25 }, 4: { cellWidth: 50 } }
       });
 
       doc.save(`تقرير_الحسابات_${Date.now()}.pdf`);
