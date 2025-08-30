@@ -232,7 +232,10 @@ function exportToCSV() {
     "المعرف": r.id,
     "المبلغ": r.amount,
     "الحساب الوطني": r.national
-  })));
+  })), {
+    encoding: 'utf-8',
+    bom: true // هذا يضمن BOM لدعم العربية
+  });
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -245,14 +248,13 @@ function exportToCSV() {
 function exportToPDF() {
   const { jsPDF } = window.jspdf;
 
-  // تضمين الخط العربي
   jsPDF.API.events.push(['addFonts', function () {
-    // استخدام السلسلة مباشرة (لأنها تحتوي على الهيدر data:...base64,)
+    // تضمين الخط العربي من السلسلة Base64 مباشرة
     this.addFileToVFS('Amiri-Regular.ttf', amiriFontBase64.split(',')[1]);
     this.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
   }]);
 
-  const doc = new jsPDF({ orientation: 'landscape' });
+  const doc = new jsPDF({ orientation: 'landscape'});
   doc.setFont('Amiri');
   doc.setFontSize(16);
   doc.text("تقرير الحسابات البنكية", 140, 20, { align: "center" });
@@ -274,7 +276,6 @@ function exportToPDF() {
 
   doc.save(`تقرير_الحسابات_${Date.now()}.pdf`);
 }
-
 function goToStep1() {
   document.getElementById("step2").classList.add("hidden");
   document.getElementById("step1").classList.remove("hidden");
